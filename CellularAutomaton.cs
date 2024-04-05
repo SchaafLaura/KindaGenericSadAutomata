@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GenericCellular
+﻿namespace GenericCellular
 {
     internal class CellularAutomaton<T>
     {
@@ -13,7 +7,6 @@ namespace GenericCellular
         T[,] buffer;
         int N, M;
         Func<T[], T> transitionFunction;
-
         bool pingPong = false;
 
         public CellularAutomaton(IEnumerable<(int, int)> neighborhood, Func<T[], T> transitionFunction, int N, int M){

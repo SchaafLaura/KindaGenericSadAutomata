@@ -1,5 +1,4 @@
 ﻿using SadConsole.Configuration;
-
 Settings.WindowTitle = "My SadConsole Game";
 
 Builder gameStartup = new Builder()

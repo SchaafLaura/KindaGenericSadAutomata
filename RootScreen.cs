@@ -1,5 +1,4 @@
-﻿
-namespace GenericCellular.Scenes
+﻿namespace GenericCellular.Scenes
 {
     internal class RootScreen : ScreenObject
     {
