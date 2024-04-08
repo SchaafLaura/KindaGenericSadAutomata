@@ -47,8 +47,7 @@ namespace GenericCellular.Scenes
                     for(int i = 0; i < GameSettings.SIMULATION_LENGTH; i++)
                     {
                         if (vals[i])
-                            return new ColoredGlyph(original, Color.Transparent, '#');
-                        original = GetHSLShifted(original, -20, -0.1f, 0);
+                            return new ColoredGlyph(GetHSLShifted(original, -20 * i, -0.1f * i, 0), Color.Transparent, '#');
                     }
                     return new ColoredGlyph(Color.Transparent, Color.Transparent, ' ');
                 });
