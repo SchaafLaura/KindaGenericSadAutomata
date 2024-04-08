@@ -1,4 +1,6 @@
-﻿namespace GenericCellular.Scenes
+﻿using System.Runtime.CompilerServices;
+
+namespace GenericCellular.Scenes
 {
     internal class RootScreen : ScreenObject
     {
@@ -8,10 +10,7 @@
 
         public RootScreen()
         {
-            _mainSurface = new ScreenSurface(200, 50);
-            _mainSurface.FillWithRandomGarbage(_mainSurface.Font);
-            _mainSurface.Fill(new Rectangle(3, 3, 23, 3), Color.Violet, Color.Black, 0, Mirror.None);
-            _mainSurface.Print(4, 4, "Hello from SadConsole");
+            _mainSurface = new ScreenSurface(GameSettings.GAME_WIDTH, GameSettings.GAME_HEIGHT);
             Children.Add(_mainSurface);
 
             _automaton = new CellularAutomaton<bool>(
@@ -40,21 +39,64 @@
              
             var rng = new Random();
             _automaton.Init((_, _) => rng.Next(100) > 50);
-
             _visualizer = new CAVisualizer<bool>(
-                (b) => b ? 
-                new ColoredGlyph(Color.Orange, Color.DarkBlue, '#') : 
-                new ColoredGlyph(Color.Transparent, Color.DarkBlue, ' '));
+                (vals) =>
+                {
+                    Color original = Color.Orange;
+
+                    for(int i = 0; i < GameSettings.SIMULATION_LENGTH; i++)
+                    {
+                        if (vals[i])
+                            return new ColoredGlyph(original, Color.Transparent, '#');
+                        original = GetHSLShifted(original, -20, -0.1f, 0);
+                    }
+                    return new ColoredGlyph(Color.Transparent, Color.Transparent, ' ');
+                });
         }
 
         public override void Update(TimeSpan delta)
         {
             for(int i = 0; i < _mainSurface.Width; i++)
                 for(int j = 0; j < _mainSurface.Height; j++)
-                    _mainSurface.SetCellAppearance(i, j, _visualizer.Get(_automaton.Get(i, j)));
+                    _mainSurface.SetCellAppearance(
+                        i, j, 
+                        _visualizer.Get(
+                            _automaton.GetValues(i, j)));
 
-            _automaton.Update();
+            _automaton.UpdateSpaces();
             base.Update(delta);
         }
+
+        public static Color GetHSLShifted(Color col, float hueShift, float satShift, float lightShift)
+        {
+            var hue = col.GetHSLHue();
+            var sat = col.GetHSLSaturation();
+            var lig = col.GetHSLLightness();
+
+            var newHue = hue + hueShift;
+            var newSat = sat + satShift;
+            var newLig = lig + lightShift;
+
+            while (newHue < 0)
+                newHue += 360;
+
+            while (newSat < 0)
+                newSat += 1.0f;
+
+            while (newLig < 0)
+                newLig += 1.0f;
+
+            while (newHue > 360)
+                newHue -= 360;
+
+            while(newSat > 1.0f)
+                newSat -= 1.0f;
+
+            while(newLig > 1.0f)
+                newLig -= 1.0f;
+
+            return Color.FromHSL(newHue, newSat, newLig);
+        }
+
     }
 }

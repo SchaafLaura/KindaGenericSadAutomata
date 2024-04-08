@@ -3,37 +3,28 @@
     internal class CellularAutomaton<T>
     {
         IEnumerable<(int, int)> neighborhood;
-        T[,] space;
-        T[,] buffer;
         int N, M;
         Func<T[], T> transitionFunction;
-        bool pingPong = false;
+        T[,,] spaces;
+        int spaceIndex = 0;
 
         public CellularAutomaton(IEnumerable<(int, int)> neighborhood, Func<T[], T> transitionFunction, int N, int M){
             this.neighborhood = neighborhood;
             this.transitionFunction = transitionFunction;
             this.N = N;
             this.M = M;
-            space =  new T[N, M];
-            buffer = new T[N, M];
+            spaces = new T[N, M, GameSettings.SIMULATION_LENGTH];
         }
 
-        public T Get(int i, int j)
+        public T[] GetValues(int i, int j)
         {
-            if (!pingPong)
-                return space[i, j];
-            else
-                return buffer[i, j];
+            T[] ret = new T[GameSettings.SIMULATION_LENGTH];
+            for(int k = 0; k < GameSettings.SIMULATION_LENGTH; k++)
+                ret[k] = spaces[i, j, (spaceIndex + k) % GameSettings.SIMULATION_LENGTH];
+            return ret;
         }
 
-        public void Init(Func<int, int, T> initFn)
-        {
-            for(int i = 0; i < N; i++)
-                for(int j = 0; j < M; j++)
-                    space[i, j] = initFn(i, j);
-        }
-
-        private void UpdateSpace(T[,] arr, T[,] buff)
+        public void UpdateSpaces()
         {
             T[] n = new T[neighborhood.Count()];
             int k;
@@ -43,20 +34,18 @@
                 {
                     k = 0;
                     foreach (var xy in neighborhood)
-                        n[k++] = arr[(i + xy.Item1 + N) % N, (j + xy.Item2 + M) % M];
-
-                    buff[i, j] = transitionFunction.Invoke(n);
+                        n[k++] = spaces[(i + xy.Item1 + N) % N, (j + xy.Item2 + M) % M, spaceIndex];
+                    spaces[i, j, (spaceIndex + 1) % GameSettings.SIMULATION_LENGTH] = transitionFunction.Invoke(n);
                 }
             }
+            spaceIndex = (spaceIndex + 1) % GameSettings.SIMULATION_LENGTH;
         }
 
-        public void Update()
+        public void Init(Func<int, int, T> initFn)
         {
-            if (!pingPong)
-                UpdateSpace(space, buffer);
-            else
-                UpdateSpace(buffer, space);
-            pingPong = !pingPong;
+            for(int i = 0; i < N; i++)
+                for(int j = 0; j < M; j++)
+                    spaces[i, j, 0] = initFn(i, j);
         }
     }
 }

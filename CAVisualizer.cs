@@ -2,14 +2,14 @@
 {
     internal class CAVisualizer<T>
     {
-        Func<T, ColoredGlyph> vizFunction;
-        public CAVisualizer(Func<T, ColoredGlyph> vizFunction){
+        Func<T[], ColoredGlyph> vizFunction;
+        public CAVisualizer(Func<T[], ColoredGlyph> vizFunction){
             this.vizFunction = vizFunction;
         }
 
-        public ColoredGlyph Get(T state)
+        public ColoredGlyph Get(T[] values)
         {
-            return vizFunction(state);
+            return vizFunction(values);
         }
     }
 }

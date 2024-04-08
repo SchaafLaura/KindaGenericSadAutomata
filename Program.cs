@@ -2,7 +2,7 @@
 Settings.WindowTitle = "My SadConsole Game";
 
 Builder gameStartup = new Builder()
-    .SetScreenSize(200, 50)
+    .SetScreenSize(GameSettings.GAME_WIDTH, GameSettings.GAME_HEIGHT)
     .SetStartingScreen<GenericCellular.Scenes.RootScreen>()
     .IsStartingScreenFocused(true)
     .ConfigureFonts(true)
